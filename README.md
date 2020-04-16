@@ -1,5 +1,7 @@
 # rpi-remote-setup
 
+> Disclaimer: This project is not finished yet. It is still work in progress and needs to be tested.
+
 ## Purpose
 
 I am sick of setting up Raspberry Pi's from scratch, because everytime it is the same procedure:
@@ -26,13 +28,13 @@ With that script you can (but dont need to):
 
 ## Installation guide
 
-1) Flash Raspbian Lite on a SD card running Win Disk Imager as administrator.
+1) Flash [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) on a SD card running [Win Disk Imager](https://sourceforge.net/projects/win32diskimager/) as administrator.
 2) Before plugging the SD card into the Pi, enable SSH:
   
 ```bash
 #switch to boot partition
 cd /e
-#create file
+#create ssh file
 touch ssh
 ```
 
@@ -41,8 +43,7 @@ touch ssh
 
 ```bash
 sh pi:raspberry@${local_ip_address_of_the_pi}
-#enter default password: raspberry
 
-
-
+curl -fsSL https://raw.githubusercontent.com/hikkoiri/rpi-remote-setup/master/setup.sh -o pi-setup.sh
+sudo sh pi-setup.sh
 ```
