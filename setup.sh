@@ -30,9 +30,9 @@ function check_root(){
 }
 
 function change_hostname_prompt(){
-    echo -e "${RED}Configuration [1/6]${NC}"
+    echo -e "${RED}Configuration [1/7]${NC}"
     echo
-    echo "The default hostname of the RPi is 'raspberry'."
+    echo "The default hostname of the RPi is 'raspberrypi'."
     echo "Do you want to change it? [y/n]"
     read change_hostname_prompt_yn
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
@@ -52,7 +52,7 @@ function change_hostname_prompt(){
 }
 
 function disable_bluetooth_prompt(){
-    echo -e "${RED}Configuration [2/6]${NC}"
+    echo -e "${RED}Configuration [2/7]${NC}"
     echo
     echo "Bluetooth is turned on per default."
     echo "Do you want to turn Bluetooth off? [y/n]"
@@ -70,7 +70,7 @@ function disable_bluetooth_prompt(){
 }
 
 function disable_wifi_prompt(){
-    echo -e "${RED}Configuration [3/6]${NC}"
+    echo -e "${RED}Configuration [3/7]${NC}"
     echo
     echo "Wifi is turned on per default."
     echo "That may not be necessary, when the RPi is plugged in over a LAN cable."
@@ -89,7 +89,7 @@ function disable_wifi_prompt(){
 }
 
 function configure_pub_key_auth_prompt(){
-    echo -e "${RED}Configuration [4/6]${NC}"
+    echo -e "${RED}Configuration [4/7]${NC}"
     echo
     echo "The time to use username and password to log onto a system is over."
     echo "Nowadays you use Public Key Authentication."
@@ -115,14 +115,13 @@ function configure_pub_key_auth_prompt(){
 
 
 function configure_firewall_prompt(){
-    echo -e "${RED}Configuration [5/6]${NC}"
+    echo -e "${RED}Configuration [5/7]${NC}"
     echo
     echo "Please enter a comma-separated list of ports, which should be opened up for inbound traffic."
     echo "To enable SSH, HTTP and HTTPS your input would look like this:"
     echo "22,80,443"
     echo
     echo "Please enter your input: (Empty list is possible)"
-    
     
     read configure_firewall_prompt_ports
     
@@ -136,7 +135,7 @@ function configure_firewall_prompt(){
 }
 
 function install_docker_prompt(){
-    echo -e "${RED}Configuration [6/6]${NC}"
+    echo -e "${RED}Configuration [6/7]${NC}"
     echo
     echo "Do you want to install Docker? [y/n]"
     read install_docker_prompt_yn
@@ -152,6 +151,22 @@ function install_docker_prompt(){
     clear
 }
 
+function install_git_prompt(){
+    echo -e "${RED}Configuration [7/7]${NC}"
+    echo
+    echo "Do you want to install git? [y/n]"
+    read install_git_prompt_yn
+    if  [ "$install_git_prompt_yn" == "y" ]; then
+        echo "Registered a Yes."
+        elif [ "$install_git_prompt_yn" == "n" ]; then
+        echo "Registered a No"
+    else
+        clear
+        echo "Invalid Input. Please choose between y or n"
+        install_git_prompt
+    fi
+    clear
+}
 
 
 function summary(){
@@ -166,6 +181,7 @@ function summary(){
     echo "Public SSH key: $configure_pub_key_auth_prompt_pub_key"
     echo "Firewall open inbound ports: $configure_firewall_prompt_ports"
     echo "Install Docker? $install_docker_prompt_yn"
+    echo "Install git? $install_git_prompt_yn"
     echo
     echo -e "${RED}Do you want to start the installation?"
     echo -e "This is your last chance to stop and restart the setup script.${NC}"
@@ -187,38 +203,45 @@ function summary(){
 
 function start_installation(){
     clear
-    # step 1 - hostname
-     if  [ "$change_hostname_prompt_yn" == "y" ]; then
+    
+    echo -e "${RED}Step 1 - Changing Hostname${NC}"
+    echo
+    if  [ "$change_hostname_prompt_yn" == "y" ]; then
       current_hostname=$(cat /etc/hostname)
       sudo sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hostname
       sudo sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hosts
     else        
       echo "Skipped."
     fi
-    
+    pause 'Press [Enter] key to continue...'
 
-    # step 2 - bluetooth
+    echo -e "${RED}Step 2 - Disabling Bluetooth${NC}"
+    echo
     if  [ "$disable_bluetooth_prompt_yn" == "y" ]; then
      echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
     else        
       echo "Skipped."
     fi
+    pause 'Press [Enter] key to continue...'
 
 
-    # step 3 - wifi    
+    echo -e "${RED}Step 3 - Disabling Wifi${NC}"
+    echo
     if  [ "$disable_wifi_prompt_yn" == "y" ]; then
-     echo "dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
+        echo "dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
     else        
-      echo "Skipped."
+        echo "Skipped."
     fi
+    pause 'Press [Enter] key to continue...'
 
-    # step 4 - pub key
-    configure_pub_key_auth_prompt_pub_key
+    echo -e "${RED}Step 4 - Configure Pub Key Authentication${NC}"
+    echo    
     mkdir /home/pi/.ssh
     chmod 700 /home/pi/.ssh
     echo $configure_pub_key_auth_prompt_pub_key > /home/pi/.ssh/authorized_keys
     chmod 400 /home/pi/.ssh/authorized_keys
     chown pi:pi /home/pi -R
+    pause 'Press [Enter] key to continue...'
 
     #lock down ssh
     sed -i "s/X11Forwarding yes/#X11Forwarding no/g" /etc/ssh/sshd_config
@@ -226,26 +249,57 @@ function start_installation(){
     sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config
     sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config 
     service ssh restart
+    pause 'Press [Enter] key to continue...'
 
-    # step 5 - update os
+    echo -e "${RED}Step 5 - Update OS${NC}"
+    echo
     apt-get update
     apt-get upgrade
-    
-    # step 6 - configure firewall
+    pause 'Press [Enter] key to continue...'
+
+    echo -e "${RED}Step 6 - Setup firewall${NC}"
+    echo
     apt install ufw
     for element in "${configure_firewall_prompt_port_array[@]}"
     do
         ufw allow $element
     done
     ufw enable
-    
-    #step 7 - install_docker
-    #TODO implement
+    pause 'Press [Enter] key to continue...'
 
-    #step 8 - restart
-    # installation succesful
+    echo -e "${RED}Step 7 - Install Docker${NC}"
+    echo
+     echo
+    if  [ "$install_docker_prompt_yn" == "y" ]; then
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+        rm -rf get-docker.sh
+    else        
+        echo "Skipped."
+    fi
+    pause 'Press [Enter] key to continue...'   
+
+    echo -e "${RED}Step 8 - Install git${NC}"
+    echo
+    if  [ "$install_git_prompt_yn" == "y" ]; then
+        sudo apt install git
+    else        
+        echo "Skipped."
+    fi
+    pause 'Press [Enter] key to continue...'
+
+    echo -e "${RED}Step 9 - Installation end${NC}"
+    echo   
+     # installation succesful
     echo -e "${GREEN}INSTALLATION SUCCESSFUL!${NC}"
     echo "The Pi will restart in 60 seconds."
+    echo
+    echo "You can reconnect with the following command:" 
+    if  [ "$change_hostname_prompt_yn" == "y" ]; then
+        echo "ssh pi@$change_hostname_prompt_new_hostname"
+    else        
+        echo "ssh pi@raspberrypi"
+    fi
     sleep 60
     reboot
 }
@@ -265,6 +319,7 @@ disable_wifi_prompt
 configure_pub_key_auth_prompt
 configure_firewall_prompt
 install_docker_prompt
+install_git_prompt
 summary
 
 

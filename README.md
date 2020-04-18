@@ -24,7 +24,7 @@ With that script you can (but dont need to):
 - Disable Wifi
 - Configure Public Key Authentication
 - Configure Firewall rules
-- Install commonly used software, like docker
+- Install commonly used software, like docker and git
 
 ## Installation guide
 
@@ -42,7 +42,8 @@ touch ssh
 4) Log on to Pi for the first time, download this awesome file & execute it.
 
 ```bash
-sh pi:raspberry@${local_ip_address_of_the_pi}
+ssh pi@raspberrypi
+#enter default password raspberry
 
 curl -fsSL https://raw.githubusercontent.com/hikkoiri/rpi-remote-setup/master/setup.sh -o pi-setup.sh
 sudo sh pi-setup.sh
