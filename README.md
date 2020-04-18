@@ -1,6 +1,6 @@
 # rpi-remote-setup
 
-> Succesfully tested on Raspbian GNU/Linux 10 (buster) with kernel version Linux 4.19.97-v7+.
+> Succesfully tested on Raspbian GNU/Linux 10 (buster) with kernel version Linux 4.19.97-v7+. Twice!
 
 ## Purpose
 

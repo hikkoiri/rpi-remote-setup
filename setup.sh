@@ -279,9 +279,9 @@ function start_installation(){
     fi
 
 
-    echo -e "${RED}Step 9 - Installation end${NC}"
+    echo 
     echo -e "${GREEN}INSTALLATION SUCCESSFUL!${NC}"
-    echo "The Pi will restart in 30 seconds."
+    echo "The Pi will restart in 30 seconds to apply the changes."
     echo
     echo "You can reconnect with the following command:" 
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
