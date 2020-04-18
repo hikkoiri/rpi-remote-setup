@@ -42,7 +42,7 @@ function change_hostname_prompt(){
         read change_hostname_prompt_new_hostname
         
         elif [ "$change_hostname_prompt_yn" == "n" ]; then
-        echo "Registered a No"
+        echo "Registered a No."
     else
         clear
         echo "Invalid Input. Please choose between y or n"
@@ -60,7 +60,7 @@ function disable_bluetooth_prompt(){
     if  [ "$disable_bluetooth_prompt_yn" == "y" ]; then
         echo "Registered a Yes."
         elif [ "$disable_bluetooth_prompt_yn" == "n" ]; then
-        echo "Registered a No"
+        echo "Registered a No."
     else
         clear
         echo "Invalid Input. Please choose between y or n"
@@ -79,7 +79,7 @@ function disable_wifi_prompt(){
     if  [ "$disable_wifi_prompt_yn" == "y" ]; then
         echo "Registered a Yes."
         elif [ "$disable_wifi_prompt_yn" == "n" ]; then
-        echo "Registered a No"
+        echo "Registered a No."
     else
         clear
         echo "Invalid Input. Please choose between y or n"
@@ -121,7 +121,7 @@ function configure_firewall_prompt(){
     echo "To enable SSH, HTTP and HTTPS your input would look like this:"
     echo "22,80,443"
     echo
-    echo "Please enter your input: (Empty list is possible)"
+    echo "Please enter your input: (Empty list is possible but not suggested)"
     
     read configure_firewall_prompt_ports
     
@@ -142,7 +142,7 @@ function install_docker_prompt(){
     if  [ "$install_docker_prompt_yn" == "y" ]; then
         echo "Registered a Yes."
         elif [ "$install_docker_prompt_yn" == "n" ]; then
-        echo "Registered a No"
+        echo "Registered a No."
     else
         clear
         echo "Invalid Input. Please choose between y or n"
@@ -159,7 +159,7 @@ function install_git_prompt(){
     if  [ "$install_git_prompt_yn" == "y" ]; then
         echo "Registered a Yes."
         elif [ "$install_git_prompt_yn" == "n" ]; then
-        echo "Registered a No"
+        echo "Registered a No."
     else
         clear
         echo "Invalid Input. Please choose between y or n"
@@ -206,7 +206,6 @@ function start_installation(){
     
 
     echo -e "${RED}Step 1 - Changing Hostname${NC}"
-    echo
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
       current_hostname=$(cat /etc/hostname)
       sudo sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hostname
@@ -214,92 +213,75 @@ function start_installation(){
     else        
       echo "Skipped."
     fi
-    pause 'Press [Enter] key to continue...'
 
 
     echo -e "${RED}Step 2 - Disabling Bluetooth${NC}"
-    echo
     if  [ "$disable_bluetooth_prompt_yn" == "y" ]; then
      echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
     else        
       echo "Skipped."
     fi
-    pause 'Press [Enter] key to continue...'
 
 
     echo -e "${RED}Step 3 - Disabling Wifi${NC}"
-    echo
     if  [ "$disable_wifi_prompt_yn" == "y" ]; then
         echo "dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
     else        
         echo "Skipped."
     fi
-    pause 'Press [Enter] key to continue...'
 
 
     echo -e "${RED}Step 4 - Configure Pub Key Authentication${NC}"
-    echo    
     mkdir /home/pi/.ssh
     chmod 700 /home/pi/.ssh
     echo $configure_pub_key_auth_prompt_pub_key > /home/pi/.ssh/authorized_keys
     chmod 400 /home/pi/.ssh/authorized_keys
     chown pi:pi /home/pi -R
-    pause 'Press [Enter] key to continue...'
     #lock down ssh
     sed -i "s/X11Forwarding yes/#X11Forwarding no/g" /etc/ssh/sshd_config
     sed -i "s/UsePAM yes/#UsePAM no/g" /etc/ssh/sshd_config
     sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config
     sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config 
     service ssh restart
-    pause 'Press [Enter] key to continue...'
 
 
     echo -e "${RED}Step 5 - Update OS${NC}"
-    echo
-    apt-get update
-    apt-get upgrade
-    pause 'Press [Enter] key to continue...'
+    apt-get update -y
+    apt-get upgrade -y
 
 
     echo -e "${RED}Step 6 - Setup firewall${NC}"
-    echo
-    apt install ufw
+    apt install ufw -y
     for element in "${configure_firewall_prompt_port_array[@]}"
     do
+        echo ufw allow $element
         ufw allow $element
     done
-    ufw enable
-    pause 'Press [Enter] key to continue...'
+    ufw --force enable
 
 
     echo -e "${RED}Step 7 - Install Docker${NC}"
-    echo
-     echo
     if  [ "$install_docker_prompt_yn" == "y" ]; then
         curl -fsSL https://get.docker.com -o get-docker.sh
         sh get-docker.sh
         rm -rf get-docker.sh
+        usermod -aG docker pi
     else        
         echo "Skipped."
     fi
-    pause 'Press [Enter] key to continue...'   
 
 
     echo -e "${RED}Step 8 - Install git${NC}"
-    echo
     if  [ "$install_git_prompt_yn" == "y" ]; then
-        sudo apt install git
+        sudo apt install git -y
     else        
         echo "Skipped."
     fi
-    pause 'Press [Enter] key to continue...'
 
 
     echo -e "${RED}Step 9 - Installation end${NC}"
-    echo   
-     # installation succesful
     echo -e "${GREEN}INSTALLATION SUCCESSFUL!${NC}"
-    echo "The Pi will restart in 60 seconds."
+    echo "The Pi will restart in 30 seconds."
     echo
     echo "You can reconnect with the following command:" 
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
@@ -307,7 +289,7 @@ function start_installation(){
     else        
         echo "ssh pi@raspberrypi"
     fi
-    sleep 60
+    sleep 30
     reboot
 }
 
