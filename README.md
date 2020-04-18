@@ -46,5 +46,9 @@ ssh pi@raspberrypi
 #enter default password raspberry
 
 curl -fsSL https://raw.githubusercontent.com/hikkoiri/rpi-remote-setup/master/setup.sh -o pi-setup.sh
-sudo sh pi-setup.sh
+chmod +x pi-setup.sh
+sudo ./pi-setup.sh
+
+#when finished, you can delete the script again
+rm pi-setup.sh
 ```

@@ -190,7 +190,7 @@ function summary(){
     read start_installation_yn
     if  [ "$start_installation_yn" == "y" ]; then
         echo "Registered a Yes. Starting with the installation."
-        #start_installation
+        start_installation
         elif [ "$start_installation_yn" == "n" ]; then
         echo "Registered a No. Exiting."
         exit 1;
@@ -204,6 +204,7 @@ function summary(){
 function start_installation(){
     clear
     
+
     echo -e "${RED}Step 1 - Changing Hostname${NC}"
     echo
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
@@ -214,6 +215,7 @@ function start_installation(){
       echo "Skipped."
     fi
     pause 'Press [Enter] key to continue...'
+
 
     echo -e "${RED}Step 2 - Disabling Bluetooth${NC}"
     echo
@@ -234,6 +236,7 @@ function start_installation(){
     fi
     pause 'Press [Enter] key to continue...'
 
+
     echo -e "${RED}Step 4 - Configure Pub Key Authentication${NC}"
     echo    
     mkdir /home/pi/.ssh
@@ -242,7 +245,6 @@ function start_installation(){
     chmod 400 /home/pi/.ssh/authorized_keys
     chown pi:pi /home/pi -R
     pause 'Press [Enter] key to continue...'
-
     #lock down ssh
     sed -i "s/X11Forwarding yes/#X11Forwarding no/g" /etc/ssh/sshd_config
     sed -i "s/UsePAM yes/#UsePAM no/g" /etc/ssh/sshd_config
@@ -251,11 +253,13 @@ function start_installation(){
     service ssh restart
     pause 'Press [Enter] key to continue...'
 
+
     echo -e "${RED}Step 5 - Update OS${NC}"
     echo
     apt-get update
     apt-get upgrade
     pause 'Press [Enter] key to continue...'
+
 
     echo -e "${RED}Step 6 - Setup firewall${NC}"
     echo
@@ -266,6 +270,7 @@ function start_installation(){
     done
     ufw enable
     pause 'Press [Enter] key to continue...'
+
 
     echo -e "${RED}Step 7 - Install Docker${NC}"
     echo
@@ -279,6 +284,7 @@ function start_installation(){
     fi
     pause 'Press [Enter] key to continue...'   
 
+
     echo -e "${RED}Step 8 - Install git${NC}"
     echo
     if  [ "$install_git_prompt_yn" == "y" ]; then
@@ -287,6 +293,7 @@ function start_installation(){
         echo "Skipped."
     fi
     pause 'Press [Enter] key to continue...'
+
 
     echo -e "${RED}Step 9 - Installation end${NC}"
     echo   
