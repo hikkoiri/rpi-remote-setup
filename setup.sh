@@ -30,7 +30,7 @@ function check_root(){
 }
 
 function change_hostname_prompt(){
-    echo -e "${RED}Configuration [1/7]${NC}"
+    echo -e "${RED}Configuration [1/8]${NC}"
     echo
     echo "The default hostname of the RPi is 'raspberrypi'."
     echo "Do you want to change it? [y/n]"
@@ -52,7 +52,7 @@ function change_hostname_prompt(){
 }
 
 function disable_bluetooth_prompt(){
-    echo -e "${RED}Configuration [2/7]${NC}"
+    echo -e "${RED}Configuration [2/8]${NC}"
     echo
     echo "Bluetooth is turned on per default."
     echo "Do you want to turn Bluetooth off? [y/n]"
@@ -70,7 +70,7 @@ function disable_bluetooth_prompt(){
 }
 
 function disable_wifi_prompt(){
-    echo -e "${RED}Configuration [3/7]${NC}"
+    echo -e "${RED}Configuration [3/8]${NC}"
     echo
     echo "Wifi is turned on per default."
     echo "That may not be necessary, when the RPi is plugged in over a LAN cable."
@@ -89,7 +89,7 @@ function disable_wifi_prompt(){
 }
 
 function configure_pub_key_auth_prompt(){
-    echo -e "${RED}Configuration [4/7]${NC}"
+    echo -e "${RED}Configuration [4/8]${NC}"
     echo
     echo "The time to use username and password to log onto a system is over."
     echo "Nowadays you use Public Key Authentication."
@@ -115,7 +115,7 @@ function configure_pub_key_auth_prompt(){
 
 
 function configure_firewall_prompt(){
-    echo -e "${RED}Configuration [5/7]${NC}"
+    echo -e "${RED}Configuration [5/8]${NC}"
     echo
     echo "Please enter a comma-separated list of ports, which should be opened up for inbound traffic."
     echo "To enable SSH, HTTP and HTTPS your input would look like this:"
@@ -135,7 +135,7 @@ function configure_firewall_prompt(){
 }
 
 function install_docker_prompt(){
-    echo -e "${RED}Configuration [6/7]${NC}"
+    echo -e "${RED}Configuration [6/8]${NC}"
     echo
     echo "Do you want to install Docker? [y/n]"
     read install_docker_prompt_yn
@@ -151,8 +151,25 @@ function install_docker_prompt(){
     clear
 }
 
+function install_docker_compose_prompt(){
+    echo -e "${RED}Configuration [7/8]${NC}"
+    echo
+    echo "Do you want to install Docker Compose? [y/n]"
+    read install_docker_compose_prompt_yn
+    if  [ "$install_docker_compose_prompt_yn" == "y" ]; then
+        echo "Registered a Yes."
+        elif [ "$install_docker_compose_prompt_yn" == "n" ]; then
+        echo "Registered a No."
+    else
+        clear
+        echo "Invalid Input. Please choose between y or n"
+        install_docker_compose_prompt
+    fi
+    clear
+}
+
 function install_git_prompt(){
-    echo -e "${RED}Configuration [7/7]${NC}"
+    echo -e "${RED}Configuration [8/8]${NC}"
     echo
     echo "Do you want to install git? [y/n]"
     read install_git_prompt_yn
@@ -181,6 +198,7 @@ function summary(){
     echo "Public SSH key: $configure_pub_key_auth_prompt_pub_key"
     echo "Firewall open inbound ports: $configure_firewall_prompt_ports"
     echo "Install Docker? $install_docker_prompt_yn"
+    echo "Install Docker Compose? $install_docker_compose_prompt_yn"
     echo "Install git? $install_git_prompt_yn"
     echo
     echo -e "${RED}Do you want to start the installation?"
@@ -271,7 +289,17 @@ function start_installation(){
     fi
 
 
-    echo -e "${RED}Step 8 - Install git${NC}"
+    echo -e "${RED}Step 8 - Install Docker Compose${NC}"
+    if  [ "$install_docker_compose_prompt_yn" == "y" ]; then
+        apt install -y python3-pip libffi-dev
+        pip3 install docker-compose
+        apt remove -y python3-pip libffi-dev
+    else        
+        echo "Skipped."
+    fi
+
+
+    echo -e "${RED}Step 9 - Install git${NC}"
     if  [ "$install_git_prompt_yn" == "y" ]; then
         sudo apt install git -y
     else        
@@ -308,6 +336,7 @@ disable_wifi_prompt
 configure_pub_key_auth_prompt
 configure_firewall_prompt
 install_docker_prompt
+install_docker_compose_prompt
 install_git_prompt
 summary
 

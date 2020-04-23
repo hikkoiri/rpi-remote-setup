@@ -24,7 +24,7 @@ With that script you can (but dont need to):
 - Disable Wifi
 - Configure Public Key Authentication
 - Configure Firewall rules
-- Install commonly used software, like docker and git
+- Install commonly used software, like docker, docker-compose and git
 
 ## Installation guide
 
@@ -49,6 +49,6 @@ curl -fsSL https://raw.githubusercontent.com/hikkoiri/rpi-remote-setup/master/se
 chmod +x pi-setup.sh
 sudo ./pi-setup.sh
 
-#when finished, you can delete the script again
+#when finished, you can delete the script
 rm pi-setup.sh
 ```
