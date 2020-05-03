@@ -312,7 +312,6 @@ function start_installation(){
     if  [ "$install_docker_compose_prompt_yn" == "y" ]; then
         apt install -y python3-pip libffi-dev
         pip3 install docker-compose
-        apt remove -y python3-pip libffi-dev
     else        
         echo "Skipped."
     fi
