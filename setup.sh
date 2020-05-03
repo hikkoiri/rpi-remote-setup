@@ -30,7 +30,7 @@ function check_root(){
 }
 
 function change_hostname_prompt(){
-    echo -e "${RED}Configuration [1/8]${NC}"
+    echo -e "${RED}Configuration [1/9]${NC}"
     echo
     echo "The default hostname of the RPi is 'raspberrypi'."
     echo "Do you want to change it? [y/n]"
@@ -52,7 +52,7 @@ function change_hostname_prompt(){
 }
 
 function disable_bluetooth_prompt(){
-    echo -e "${RED}Configuration [2/8]${NC}"
+    echo -e "${RED}Configuration [2/9]${NC}"
     echo
     echo "Bluetooth is turned on per default."
     echo "Do you want to turn Bluetooth off? [y/n]"
@@ -70,7 +70,7 @@ function disable_bluetooth_prompt(){
 }
 
 function disable_wifi_prompt(){
-    echo -e "${RED}Configuration [3/8]${NC}"
+    echo -e "${RED}Configuration [3/9]${NC}"
     echo
     echo "Wifi is turned on per default."
     echo "That may not be necessary, when the RPi is plugged in over a LAN cable."
@@ -89,7 +89,7 @@ function disable_wifi_prompt(){
 }
 
 function configure_pub_key_auth_prompt(){
-    echo -e "${RED}Configuration [4/8]${NC}"
+    echo -e "${RED}Configuration [4/9]${NC}"
     echo
     echo "The time to use username and password to log onto a system is over."
     echo "Nowadays you use Public Key Authentication."
@@ -115,7 +115,7 @@ function configure_pub_key_auth_prompt(){
 
 
 function configure_firewall_prompt(){
-    echo -e "${RED}Configuration [5/8]${NC}"
+    echo -e "${RED}Configuration [5/9]${NC}"
     echo
     echo "Please enter a comma-separated list of ports, which should be opened up for inbound traffic."
     echo "To enable SSH, HTTP and HTTPS your input would look like this:"
@@ -135,7 +135,7 @@ function configure_firewall_prompt(){
 }
 
 function install_docker_prompt(){
-    echo -e "${RED}Configuration [6/8]${NC}"
+    echo -e "${RED}Configuration [6/9]${NC}"
     echo
     echo "Do you want to install Docker? [y/n]"
     read install_docker_prompt_yn
@@ -152,7 +152,7 @@ function install_docker_prompt(){
 }
 
 function install_docker_compose_prompt(){
-    echo -e "${RED}Configuration [7/8]${NC}"
+    echo -e "${RED}Configuration [7/9]${NC}"
     echo
     echo "Do you want to install Docker Compose? [y/n]"
     read install_docker_compose_prompt_yn
@@ -168,8 +168,26 @@ function install_docker_compose_prompt(){
     clear
 }
 
+
+function docker_enable_ipv6_prompt(){
+    echo -e "${RED}Configuration [8/9]${NC}"
+    echo
+    echo "Do you want to enable IPv6 for the docker daemon? [y/n]"
+    read docker_enable_ipv6_prompt_yn
+    if  [ "$docker_enable_ipv6_prompt_yn" == "y" ]; then
+        echo "Registered a Yes."
+        elif [ "$docker_enable_ipv6_prompt_yn" == "n" ]; then
+        echo "Registered a No."
+    else
+        clear
+        echo "Invalid Input. Please choose between y or n"
+        docker_enable_ipv6_prompt
+    fi
+    clear
+}
+
 function install_git_prompt(){
-    echo -e "${RED}Configuration [8/8]${NC}"
+    echo -e "${RED}Configuration [9/9]${NC}"
     echo
     echo "Do you want to install git? [y/n]"
     read install_git_prompt_yn
@@ -199,6 +217,7 @@ function summary(){
     echo "Firewall open inbound ports: $configure_firewall_prompt_ports"
     echo "Install Docker? $install_docker_prompt_yn"
     echo "Install Docker Compose? $install_docker_compose_prompt_yn"
+    echo "Enable IPv6 for docker daemon? $docker_enable_ipv6_prompt_yn"
     echo "Install git? $install_git_prompt_yn"
     echo
     echo -e "${RED}Do you want to start the installation?"
@@ -299,7 +318,19 @@ function start_installation(){
     fi
 
 
-    echo -e "${RED}Step 9 - Install git${NC}"
+    echo -e "${RED}Step 9 -Enable IPv6 for docker daemon${NC}"
+    if  [ "$docker_enable_ipv6_prompt_yn" == "y" ]; then
+        echo '{' >> /etc/docker/daemon.json
+        echo '"ipv6": true,' >> /etc/docker/daemon.json
+        echo '"fixed-cidr-v6": "fd00::/80"' >> /etc/docker/daemon.json
+        echo '}' >> /etc/docker/daemon.json
+    else        
+        echo "Skipped."
+    fi
+
+
+
+    echo -e "${RED}Step 10 - Install git${NC}"
     if  [ "$install_git_prompt_yn" == "y" ]; then
         sudo apt install git -y
     else        
@@ -337,6 +368,7 @@ configure_pub_key_auth_prompt
 configure_firewall_prompt
 install_docker_prompt
 install_docker_compose_prompt
+docker_enable_ipv6_prompt
 install_git_prompt
 summary
 
