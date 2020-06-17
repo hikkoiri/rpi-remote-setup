@@ -305,6 +305,9 @@ function start_installation(){
         echo "Skipped."
     fi
 
+    echo -e "${RED}Step 10 - Summoning SSH Key Pair${NC}"
+    ssh-keygen -t rsa -b 4096  -P '' -f $HOME/.ssh/id_rsa
+
 
     echo 
     echo -e "${GREEN}INSTALLATION SUCCESSFUL!${NC}"
