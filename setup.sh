@@ -250,11 +250,11 @@ function start_installation(){
 
 
     echo -e "${RED}Step 4 - Configure Pub Key Authentication${NC}"
-    mkdir /home/pi/.ssh
-    chmod 700 /home/pi/.ssh
-    echo $configure_pub_key_auth_prompt_pub_key > /home/pi/.ssh/authorized_keys
-    chmod 400 /home/pi/.ssh/authorized_keys
-    chown pi:pi /home/pi -R
+    mkdir /home/$(whoami)/.ssh
+    chmod 700 /home/$(whoami)/.ssh
+    echo $configure_pub_key_auth_prompt_pub_key > /home/$(whoami)/.ssh/authorized_keys
+    chmod 400 /home/$(whoami)/.ssh/authorized_keys
+    chown $(whoami):$(whoami) /home/$(whoami) -R
     #lock down ssh
     sed -i "s/X11Forwarding yes/#X11Forwarding no/g" /etc/ssh/sshd_config
     sed -i "s/UsePAM yes/#UsePAM no/g" /etc/ssh/sshd_config
@@ -283,7 +283,7 @@ function start_installation(){
         curl -fsSL https://get.docker.com -o get-docker.sh
         sh get-docker.sh
         rm -rf get-docker.sh
-        usermod -aG docker pi
+        usermod -aG docker $(whoami)
     else        
         echo "Skipped."
     fi
@@ -315,9 +315,9 @@ function start_installation(){
     echo
     echo "You can reconnect with the following command:" 
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
-        echo "ssh pi@$change_hostname_prompt_new_hostname"
+        echo "ssh $(whoami)@$change_hostname_prompt_new_hostname"
     else        
-        echo "ssh pi@raspberrypi"
+        echo "ssh $(whoami)@raspberrypi"
     fi
     sleep 30
     reboot
