@@ -25,10 +25,11 @@ With that script you can (but dont need to):
 - Configure Public Key Authentication
 - Configure Firewall rules
 - Install commonly used software, like docker, docker-compose and git
+- Setup Prometheus Node Exporter service
 
 ## Installation guide
 
-1) Flash [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) on a SD card running [Win Disk Imager](https://sourceforge.net/projects/win32diskimager/) as administrator.
+1) Flash [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) on a SD card running [Win Disk Imager](https://sourceforge.net/projects/win32diskimager/) as administrator. (It works also fine with RaspiOS)
 2) Before plugging the SD card into the Pi, enable SSH:
   
 ```bash

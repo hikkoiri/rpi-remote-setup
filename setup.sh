@@ -30,7 +30,7 @@ function check_root(){
 }
 
 function change_hostname_prompt(){
-    echo -e "${RED}Configuration [1/8]${NC}"
+    echo -e "${RED}Configuration [1/9]${NC}"
     echo
     echo "The default hostname of the RPi is 'raspberrypi'."
     echo "Do you want to change it? [y/n]"
@@ -52,7 +52,7 @@ function change_hostname_prompt(){
 }
 
 function disable_bluetooth_prompt(){
-    echo -e "${RED}Configuration [2/8]${NC}"
+    echo -e "${RED}Configuration [2/9]${NC}"
     echo
     echo "Bluetooth is turned on per default."
     echo "Do you want to turn Bluetooth off? [y/n]"
@@ -70,7 +70,7 @@ function disable_bluetooth_prompt(){
 }
 
 function disable_wifi_prompt(){
-    echo -e "${RED}Configuration [3/8]${NC}"
+    echo -e "${RED}Configuration [3/9]${NC}"
     echo
     echo "Wifi is turned on per default."
     echo "That may not be necessary, when the RPi is plugged in over a LAN cable."
@@ -89,7 +89,7 @@ function disable_wifi_prompt(){
 }
 
 function configure_pub_key_auth_prompt(){
-    echo -e "${RED}Configuration [4/8]${NC}"
+    echo -e "${RED}Configuration [4/9]${NC}"
     echo
     echo "The time to use username and password to log onto a system is over."
     echo "Nowadays you use Public Key Authentication."
@@ -115,7 +115,7 @@ function configure_pub_key_auth_prompt(){
 
 
 function configure_firewall_prompt(){
-    echo -e "${RED}Configuration [5/8]${NC}"
+    echo -e "${RED}Configuration [5/9]${NC}"
     echo
     echo "Please enter a comma-separated list of ports, which should be opened up for inbound traffic."
     echo "To enable SSH, HTTP and HTTPS your input would look like this:"
@@ -135,7 +135,7 @@ function configure_firewall_prompt(){
 }
 
 function install_docker_prompt(){
-    echo -e "${RED}Configuration [6/8]${NC}"
+    echo -e "${RED}Configuration [6/9]${NC}"
     echo
     echo "Do you want to install Docker? [y/n]"
     read install_docker_prompt_yn
@@ -152,7 +152,7 @@ function install_docker_prompt(){
 }
 
 function install_docker_compose_prompt(){
-    echo -e "${RED}Configuration [7/8]${NC}"
+    echo -e "${RED}Configuration [7/9]${NC}"
     echo
     echo "Do you want to install Docker Compose? [y/n]"
     read install_docker_compose_prompt_yn
@@ -169,7 +169,7 @@ function install_docker_compose_prompt(){
 }
 
 function install_git_prompt(){
-    echo -e "${RED}Configuration [8/8]${NC}"
+    echo -e "${RED}Configuration [8/9]${NC}"
     echo
     echo "Do you want to install git? [y/n]"
     read install_git_prompt_yn
@@ -181,6 +181,24 @@ function install_git_prompt(){
         clear
         echo "Invalid Input. Please choose between y or n"
         install_git_prompt
+    fi
+    clear
+}
+
+
+function install_prometheus_node_exporter_prompt(){
+    echo -e "${RED}Configuration [9/9]${NC}"
+    echo
+    echo "Do you want to install the Prometheus Node Exporter Service? [y/n] (That also opens up the Port 9100)"
+    read install_git_prompt_yn
+    if  [ "$install_prometheus_node_exporter_prompt_yn" == "y" ]; then
+        echo "Registered a Yes."
+        elif [ "$install_prometheus_node_exporter_prompt_yn" == "n" ]; then
+        echo "Registered a No."
+    else
+        clear
+        echo "Invalid Input. Please choose between y or n"
+        install_prometheus_node_exporter_prompt
     fi
     clear
 }
@@ -200,6 +218,7 @@ function summary(){
     echo "Install Docker? $install_docker_prompt_yn"
     echo "Install Docker Compose? $install_docker_compose_prompt_yn"
     echo "Install git? $install_git_prompt_yn"
+    echo "Install Prometheus Node Exporter Service? $install_prometheus_node_exporter_prompt_yn"
     echo
     echo -e "${RED}Do you want to start the installation?"
     echo -e "This is your last chance to stop and restart the setup script.${NC}"
@@ -226,8 +245,8 @@ function start_installation(){
     echo -e "${RED}Step 1 - Changing Hostname${NC}"
     if  [ "$change_hostname_prompt_yn" == "y" ]; then
       current_hostname=$(cat /etc/hostname)
-      sudo sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hostname
-      sudo sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hosts
+      sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hostname
+      sed -i "s/$current_hostname/$change_hostname_prompt_new_hostname/g" /etc/hosts
     else        
       echo "Skipped."
     fi
@@ -235,7 +254,7 @@ function start_installation(){
 
     echo -e "${RED}Step 2 - Disabling Bluetooth${NC}"
     if  [ "$disable_bluetooth_prompt_yn" == "y" ]; then
-     echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
+     echo "dtoverlay=pi3-disable-bt" | tee -a /boot/config.txt
     else        
       echo "Skipped."
     fi
@@ -243,7 +262,7 @@ function start_installation(){
 
     echo -e "${RED}Step 3 - Disabling Wifi${NC}"
     if  [ "$disable_wifi_prompt_yn" == "y" ]; then
-        echo "dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
+        echo "dtoverlay=pi3-disable-wifi" | tee -a /boot/config.txt
     else        
         echo "Skipped."
     fi
@@ -300,13 +319,21 @@ function start_installation(){
 
     echo -e "${RED}Step 9 - Install git${NC}"
     if  [ "$install_git_prompt_yn" == "y" ]; then
-        sudo apt install git -y
+        apt install git -y
     else        
         echo "Skipped."
     fi
 
     echo -e "${RED}Step 10 - Summoning SSH Key Pair${NC}"
     ssh-keygen -t rsa -b 4096  -P '' -f $HOME/.ssh/id_rsa
+
+    echo -e "${RED}Step 11 - Install Prometheus Node Exporter Service${NC}"
+    if  [ "$install_prometheus_node_exporter_prompt_yn" == "y" ]; then
+        ufw allow 9100
+        apt install prometheus-node-exporter -y
+    else        
+        echo "Skipped."
+    fi
 
 
     echo 
@@ -340,6 +367,7 @@ configure_firewall_prompt
 install_docker_prompt
 install_docker_compose_prompt
 install_git_prompt
+install_prometheus_node_exporter_prompt
 summary
 
 
