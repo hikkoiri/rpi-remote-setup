@@ -190,7 +190,7 @@ function install_prometheus_node_exporter_prompt(){
     echo -e "${RED}Configuration [9/9]${NC}"
     echo
     echo "Do you want to install the Prometheus Node Exporter Service? [y/n] (That also opens up the Port 9100)"
-    read install_git_prompt_yn
+    read install_prometheus_node_exporter_prompt_yn
     if  [ "$install_prometheus_node_exporter_prompt_yn" == "y" ]; then
         echo "Registered a Yes."
         elif [ "$install_prometheus_node_exporter_prompt_yn" == "n" ]; then
