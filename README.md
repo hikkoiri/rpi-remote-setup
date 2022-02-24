@@ -1,6 +1,6 @@
 # rpi-remote-setup
 
-> Succesfully tested on Raspbian GNU/Linux 10 (buster) with kernel version Linux 4.19.97-v7+. Twice!
+> Currently the script is broken. There were some issues when expanding compatability to Ubuntu. But now I am too lazu to fix it. The commands inside the script are still helpful when running manually.
 
 ## Purpose
 
